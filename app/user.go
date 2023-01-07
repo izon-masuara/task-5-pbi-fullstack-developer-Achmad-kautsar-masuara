@@ -1,14 +1,20 @@
 package app
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
+
+type Photo struct {
+	gorm.Model
+	Filename string `gorm:"type:varchar(255);not null"`
+	Size     int    `gorm:"not null"`
+	Mimetype string `gorm:"not null"`
+}
 
 type User struct {
 	gorm.Model
-	ID       uint
-	Username string
-	Email    *string
-	Password string
-}
-
-type Pohoto struct {
+	Username string `gorm:"varchar(255),not null"`
+	Email    string `gorm:"unique;not null"`
+	Password string `gorm:"not null"`
+	Photo_Id uint   `gorm:"not null"`
 }

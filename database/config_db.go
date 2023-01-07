@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/izon-masuara/app"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,9 +16,9 @@ func Connect() {
 		panic(err.Error())
 	}
 
-	// if err := db.AutoMigrate(); err != nil {
-	// 	panic(err.Error())
-	// }
+	if err := db.AutoMigrate(app.Photo{}, app.User{}); err != nil {
+		panic(err.Error())
+	}
 
 	Db = db
 }
