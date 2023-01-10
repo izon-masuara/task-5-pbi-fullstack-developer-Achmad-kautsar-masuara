@@ -11,7 +11,9 @@ var Db *gorm.DB
 
 func Connect() {
 	psqlconn := "postgres://postgres:wppq@localhost:5432/User_BPTNS"
-	db, err := gorm.Open(postgres.Open(psqlconn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(psqlconn), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		panic(err.Error())
 	}

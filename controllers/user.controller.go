@@ -3,14 +3,13 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/izon-masuara/app"
-	"github.com/izon-masuara/database"
 	"github.com/izon-masuara/helpers"
+	"github.com/izon-masuara/models"
 )
 
 func UserRegister(ctx *gin.Context) {
@@ -21,10 +20,15 @@ func UserRegister(ctx *gin.Context) {
 		return
 	}
 
+	resIsEmail := govalidator.IsEmail(payload.Email)
+	if !resIsEmail {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, "Faild format email")
+		return
+	}
+
 	fileImageName := fmt.Sprintf("%s-%s", time.Now(), payload.Photo.Filename)
 
-	dir, _ := os.Getwd()
-	if err := ctx.SaveUploadedFile(&payload.Photo, dir+"/images/"+fileImageName); err != nil {
+	if err := ctx.SaveUploadedFile(&payload.Photo, helpers.Dir+"/images/"+fileImageName); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -35,32 +39,17 @@ func UserRegister(ctx *gin.Context) {
 		Mimetype: payload.Photo.Header.Get("Content-Type"),
 	}
 
-	resultPhoto := database.Db.Create(&photo)
-	if resultPhoto.Error != nil {
-		os.Remove(dir + "/images/" + fileImageName)
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, resultPhoto.Error.Error())
-		return
-	}
-
 	hashPass, _ := helpers.HashPassword(payload.Password)
-	resIsEmail := govalidator.IsEmail(payload.Email)
-	if !resIsEmail {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, "Faild format email")
-		return
-	}
 
 	user := app.User{
 		Username: payload.Username,
 		Password: hashPass,
 		Email:    payload.Email,
-		Photo_Id: photo.ID,
+		Photo:    photo,
 	}
 
-	resultUser := database.Db.Create(&user)
-	if resultUser.Error != nil {
-		os.Remove(dir + "/images/" + fileImageName)
-		database.Db.Unscoped().Delete(&app.Photo{}, photo.ID)
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, resultUser.Error.Error())
+	if err := models.InsertUser(user, fileImageName); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 

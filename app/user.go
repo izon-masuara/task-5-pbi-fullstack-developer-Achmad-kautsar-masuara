@@ -16,5 +16,6 @@ type User struct {
 	Username string `gorm:"varchar(255),not null"`
 	Email    string `gorm:"unique;not null"`
 	Password string `gorm:"not null"`
-	Photo_Id uint   `gorm:"not null"`
+	Photo_id int
+	Photo    Photo `gorm:"foreignKey:Photo_id;constraint:OnDelete:CASCADE;"`
 }
