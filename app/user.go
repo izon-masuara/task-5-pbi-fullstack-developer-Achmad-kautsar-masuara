@@ -4,18 +4,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type Photo struct {
-	gorm.Model
-	Filename string `gorm:"type:varchar(255);not null"`
-	Size     int    `gorm:"not null"`
-	Mimetype string `gorm:"not null"`
-}
-
 type User struct {
 	gorm.Model
-	Username string `gorm:"varchar(255),not null"`
+	Username string `gorm:"varchar(50),not null"`
 	Email    string `gorm:"unique;not null"`
 	Password string `gorm:"not null"`
-	Photo_id int
-	Photo    Photo `gorm:"foreignKey:Photo_id;constraint:OnDelete:CASCADE;"`
+	Photo    Photo  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;ForeignKey:UserID"`
+}
+
+type Photo struct {
+	gorm.Model
+	Title    string `gorm:"varchar(100),not null"`
+	Caption  string `gorm:"varchar(255),not null"`
+	PhotoUrl string `gorm:"varchar(100),not null"`
+	UserID   int
 }

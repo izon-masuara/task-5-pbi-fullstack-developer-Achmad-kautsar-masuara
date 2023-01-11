@@ -11,14 +11,12 @@ var Db *gorm.DB
 
 func Connect() {
 	psqlconn := "postgres://postgres:wppq@localhost:5432/User_BPTNS"
-	db, err := gorm.Open(postgres.Open(psqlconn), &gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: true,
-	})
+	db, err := gorm.Open(postgres.Open(psqlconn), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())
 	}
 
-	if err := db.AutoMigrate(app.Photo{}, app.User{}); err != nil {
+	if err := db.AutoMigrate(app.User{}, app.Photo{}); err != nil {
 		panic(err.Error())
 	}
 

@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
@@ -13,7 +11,7 @@ import (
 )
 
 func UserRegister(ctx *gin.Context) {
-	var payload *app.PostRequest
+	var payload app.PostRequest
 
 	if err := ctx.ShouldBind(&payload); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
@@ -26,32 +24,49 @@ func UserRegister(ctx *gin.Context) {
 		return
 	}
 
-	fileImageName := fmt.Sprintf("%s-%s", time.Now(), payload.Photo.Filename)
-
-	if err := ctx.SaveUploadedFile(&payload.Photo, helpers.Dir+"/images/"+fileImageName); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	photo := app.Photo{
-		Filename: fileImageName,
-		Size:     int(payload.Photo.Size),
-		Mimetype: payload.Photo.Header.Get("Content-Type"),
-	}
-
 	hashPass, _ := helpers.HashPassword(payload.Password)
 
 	user := app.User{
 		Username: payload.Username,
 		Password: hashPass,
 		Email:    payload.Email,
-		Photo:    photo,
+		Photo:    app.Photo{},
 	}
 
-	if err := models.InsertUser(user, fileImageName); err != nil {
+	if err := models.InsertUser(user); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	ctx.JSON(http.StatusOK, "Success Register User")
+}
+
+func UserLogin(ctx *gin.Context) {
+	var payload app.GetLoginRequest
+
+	if err := ctx.ShouldBind(&payload); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	checkEmail := govalidator.IsEmail(payload.Email)
+	if !checkEmail {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, "check your format email")
+		return
+	}
+
+	founded, err := models.UserLogin(payload)
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	token, err := helpers.GenerateToken(founded)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadGateway, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, token)
 }
