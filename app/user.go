@@ -17,5 +17,5 @@ type Photo struct {
 	Title    string `gorm:"varchar(100),not null"`
 	Caption  string `gorm:"varchar(255),not null"`
 	PhotoUrl string `gorm:"varchar(255),not null"`
-	UserID   int
+	UserID   float64
 }

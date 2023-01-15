@@ -16,3 +16,13 @@ func GenerateToken(users app.User) (string, error) {
 	}
 	return resToken, nil
 }
+
+func VerifyToken(tokenString string) (jwt.Claims, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		return []byte("AccessToekn"), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return token.Claims, err
+}
