@@ -38,7 +38,7 @@ func UserRegister(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "Success Register User")
+	ctx.JSON(http.StatusCreated, "Success Register User")
 }
 
 func UserLogin(ctx *gin.Context) {
@@ -69,4 +69,31 @@ func UserLogin(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, token)
+}
+
+func EditUser(ctx *gin.Context) {
+	var payload app.PostRequest
+	var userId = ctx.Param("userId")
+
+	err := ctx.ShouldBind(&payload)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := models.EditUserWithId(userId, payload); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "success edited")
+}
+
+func DeleteUser(ctx *gin.Context) {
+	var userId = ctx.Param("userId")
+	if err := models.DestroyUser(userId); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, "success deleted")
 }
