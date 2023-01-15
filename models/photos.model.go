@@ -18,8 +18,8 @@ func InsertPhoto(payload app.Photo) error {
 	return nil
 }
 
-func GetPhotos(id float64) ([]app.Photo, error) {
-	var photos []app.Photo
+func GetPhotos(id float64) (app.Photo, error) {
+	var photos app.Photo
 	result := database.Db.Where("user_id = ?", id).Find(&photos).Scan(&photos)
 	if result.Error != nil {
 		return photos, result.Error
