@@ -17,4 +17,6 @@ func Routers(router *gin.Engine) {
 	user.POST("/login", controllers.UserLogin)
 	user.PUT("/:userId")
 	user.DELETE("/:userId")
+
+	router.POST("/photos", controllers.UploadPhoto)
 }

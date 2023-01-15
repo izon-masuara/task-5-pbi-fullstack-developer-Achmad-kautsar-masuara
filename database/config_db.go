@@ -16,7 +16,9 @@ func Connect() {
 		panic(err.Error())
 	}
 
-	if err := db.AutoMigrate(app.User{}, app.Photo{}); err != nil {
+	err = db.AutoMigrate(app.User{}, app.Photo{})
+
+	if err != nil {
 		panic(err.Error())
 	}
 

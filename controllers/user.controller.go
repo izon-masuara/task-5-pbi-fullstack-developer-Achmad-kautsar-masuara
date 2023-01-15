@@ -38,7 +38,7 @@ func UserRegister(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "Success Register User")
+	ctx.JSON(http.StatusCreated, "Success Register User")
 }
 
 func UserLogin(ctx *gin.Context) {
